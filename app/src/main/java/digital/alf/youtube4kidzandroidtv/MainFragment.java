@@ -41,11 +41,22 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonArrayRequest;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.drawable.GlideDrawable;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Timer;
@@ -67,6 +78,13 @@ public class MainFragment extends BrowseFragment {
     private String mBackgroundUri;
     private BackgroundManager mBackgroundManager;
 
+    // TODO make sure, that the queue is created and detached in onActivityCreated
+    // Instantiate the RequestQueue.
+    RequestQueue queue;
+
+    // TODO extract the api call
+    String apiUrlMovies = "https://youtubekidz-205013.appspot.com/api/videos/";
+
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         Log.i(TAG, "onCreate");
@@ -76,9 +94,41 @@ public class MainFragment extends BrowseFragment {
 
         setupUIElements();
 
-        loadRows();
+        loadRows(MovieList.setupMovies());
+        // doesnt work yet
+//        loadRows(new ArrayList<Movie>());
+
+        // test the request
+        queue = Volley.newRequestQueue(getContext());
+        httpGetMovies();
 
         setupEventListeners();
+    }
+
+    private void httpGetMovies() {
+
+        // Request a string response from the provided URL.
+        JsonArrayRequest stringRequest = new JsonArrayRequest
+                (Request.Method.GET, apiUrlMovies, null, new Response.Listener<JSONArray>() {
+                    @Override
+                    public void onResponse(JSONArray response) {
+                        Log.d("", "Retrieved " + response);
+                        // Display the first 500 characters of the response string.
+//                        mTextView.setText("Response is: " + response.substring(0, 500));
+
+                    }
+                }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        // TODO provide feedback to user
+                        Log.e("", "Failed to retrieve the JSON");
+//                mTextView.setText("That didn't work!");
+
+                    }
+                });
+
+        // Add the request to the RequestQueue.
+        queue.add(stringRequest);
     }
 
     @Override
@@ -90,8 +140,7 @@ public class MainFragment extends BrowseFragment {
         }
     }
 
-    private void loadRows() {
-        List<Movie> list = MovieList.setupMovies();
+    private void loadRows(List<Movie> list) {
 
         ArrayObjectAdapter rowsAdapter = new ArrayObjectAdapter(new ListRowPresenter());
         CardPresenter cardPresenter = new CardPresenter();
