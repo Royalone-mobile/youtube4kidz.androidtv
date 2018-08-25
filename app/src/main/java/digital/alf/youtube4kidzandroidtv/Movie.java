@@ -15,6 +15,7 @@
 package digital.alf.youtube4kidzandroidtv;
 
 import java.io.Serializable;
+import java.util.List;
 
 /*
  * Movie class represents video entity with title, description, image thumbs and video url.
@@ -28,12 +29,39 @@ public class Movie implements Serializable {
     private String cardImageUrl;
     private String videoUrl;
     private String studio;
+    private String author;
+    private String youtubeId;
+    private List<String> tags;
 
     public Movie() {
     }
 
+    public List<String> getTags() {
+        return tags;
+    }
+
+    public void setTags(List<String> tags) {
+        this.tags = tags;
+    }
+
     public long getId() {
         return id;
+    }
+
+    public String getAuthor() {
+        return author;
+    }
+
+    public void setAuthor(String author) {
+        this.author = author;
+    }
+
+    public void setYoutubeId(String youtubeId) {
+        this.youtubeId = youtubeId;
+    }
+
+    public String getYoutubeId() {
+        return youtubeId;
     }
 
     public void setId(long id) {

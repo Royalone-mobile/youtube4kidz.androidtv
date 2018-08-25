@@ -54,10 +54,15 @@ import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -94,9 +99,9 @@ public class MainFragment extends BrowseFragment {
 
         setupUIElements();
 
-        loadRows(MovieList.setupMovies());
+//        loadRows(MovieList.setupMovies());
         // doesnt work yet
-//        loadRows(new ArrayList<Movie>());
+        loadRows(new ArrayList<Movie>());
 
         // test the request
         queue = Volley.newRequestQueue(getContext());
@@ -113,17 +118,46 @@ public class MainFragment extends BrowseFragment {
                     @Override
                     public void onResponse(JSONArray response) {
                         Log.d("", "Retrieved " + response);
-                        // Display the first 500 characters of the response string.
-//                        mTextView.setText("Response is: " + response.substring(0, 500));
 
+                        List<Movie> listMovies = new LinkedList<>();
+
+                        for(int i=0; i<response.length(); i++){
+                            try {
+                                JSONObject  object = response.getJSONObject(i);
+
+                                // TODO - move the JSDONObject to movie logic - to an own class
+                                Movie m = new Movie();
+                                m.setTitle(object.getString("name"));
+                                m.setId(object.getLong("entityId"));
+                                m.setAuthor(object.getString("author"));
+
+                                // TODO: try to move to Java8
+                                List<String> tags =new ArrayList<>();
+                                JSONArray jsonArray = object.getJSONArray ("tags");
+                                for(int j=0; j<jsonArray.length(); j++){
+                                    tags.add(jsonArray.getString(j));
+                                }
+                                m.setTags(tags);
+
+                                m.setYoutubeId(object.getString("youtubeId"));
+                                m.setCardImageUrl( String.format("https://img.youtube.com/vi/%s/0.jpg", m.getYoutubeId()) );
+                                m.setBackgroundImageUrl(m.getCardImageUrl());
+
+                                listMovies.add(m);
+
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        }
+
+                        // send the data to the adapter
+                        loadRows(listMovies);
                     }
                 }, new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         // TODO provide feedback to user
-                        Log.e("", "Failed to retrieve the JSON");
-//                mTextView.setText("That didn't work!");
-
+                        Log.e("", "Failed to retrieve the JSON: "+error.getMessage());
                     }
                 });
 
@@ -145,27 +179,52 @@ public class MainFragment extends BrowseFragment {
         ArrayObjectAdapter rowsAdapter = new ArrayObjectAdapter(new ListRowPresenter());
         CardPresenter cardPresenter = new CardPresenter();
 
-        int i;
-        for (i = 0; i < NUM_ROWS; i++) {
-            if (i != 0) {
-                Collections.shuffle(list);
+        HashMap<String, List<Movie>> mapCategoryToMovies = new HashMap<>();
+
+        // iterate movies, store them by category
+        for(Movie m : list){
+            if(m.getAuthor().isEmpty() || m.getAuthor()==null){
+                continue;
             }
-            ArrayObjectAdapter listRowAdapter = new ArrayObjectAdapter(cardPresenter);
-            for (int j = 0; j < NUM_COLS; j++) {
-                listRowAdapter.add(list.get(j % 5));
+
+            // tags
+            for(String tag:m.getTags()){
+                String tagUpperCase = Character.toUpperCase(tag.charAt(0)) + tag.substring(1);
+                List<Movie> movieList = mapCategoryToMovies.get(tagUpperCase);
+                if(movieList == null){
+                    movieList = new ArrayList<>();
+                    mapCategoryToMovies.put(tagUpperCase, movieList);
+                }
+                movieList.add(m);
             }
-            HeaderItem header = new HeaderItem(i, MovieList.MOVIE_CATEGORY[i]);
+
+        }
+
+        // store movies in the category ALL as a row
+        ArrayObjectAdapter listRowAdapter = new ArrayObjectAdapter(cardPresenter);
+        listRowAdapter.addAll(0, list);
+        HeaderItem header = new HeaderItem(0, "All movies");
+        rowsAdapter.add(new ListRow(header, listRowAdapter));
+
+        // sort categories, add them row by row
+        List<String> categoriesList = new ArrayList(mapCategoryToMovies.keySet());
+        Collections.sort(categoriesList);
+
+        for(String category: categoriesList){
+            listRowAdapter = new ArrayObjectAdapter(cardPresenter);
+            listRowAdapter.addAll(0, mapCategoryToMovies.get(category));
+            header = new HeaderItem(0, category);
             rowsAdapter.add(new ListRow(header, listRowAdapter));
         }
 
-        HeaderItem gridHeader = new HeaderItem(i, "PREFERENCES");
-
-        GridItemPresenter mGridPresenter = new GridItemPresenter();
-        ArrayObjectAdapter gridRowAdapter = new ArrayObjectAdapter(mGridPresenter);
-        gridRowAdapter.add(getResources().getString(R.string.grid_view));
-        gridRowAdapter.add(getString(R.string.error_fragment));
-        gridRowAdapter.add(getResources().getString(R.string.personal_settings));
-        rowsAdapter.add(new ListRow(gridHeader, gridRowAdapter));
+        // TODO check whether I need the preferences as below
+//        HeaderItem gridHeader = new HeaderItem(i, "PREFERENCES");
+//        GridItemPresenter mGridPresenter = new GridItemPresenter();
+//        ArrayObjectAdapter gridRowAdapter = new ArrayObjectAdapter(mGridPresenter);
+//        gridRowAdapter.add(getResources().getString(R.string.grid_view));
+//        gridRowAdapter.add(getString(R.string.error_fragment));
+//        gridRowAdapter.add(getResources().getString(R.string.personal_settings));
+//        rowsAdapter.add(new ListRow(gridHeader, gridRowAdapter));
 
         setAdapter(rowsAdapter);
     }
