@@ -6,7 +6,7 @@ The Android TV app for videos from youtube4kidz.gcpappengine repo
 # Release
 
 ### Preparations:
- - Add a keystore named "android.javakeystore.keystore.jks" to the project folder.
+ - Add a keystore with a key for signing the apk to the project folder, name it "android.javakeystore.keystore.jks"
  - Add a file ~\.gradle\gradle.properties and add the following to this file
  
  
