@@ -34,6 +34,7 @@
         <activity android:name=".DetailsActivity" />
         <activity android:name=".PlaybackActivity" />
         <activity android:name=".BrowseErrorActivity" />
+        <activity android:name=".youtubeiframe.PlaybackActivityIframe" />
     </application>
 
 </manifest>

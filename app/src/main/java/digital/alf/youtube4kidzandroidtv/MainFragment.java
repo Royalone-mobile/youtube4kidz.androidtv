@@ -67,6 +67,8 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import digital.alf.youtube4kidzandroidtv.youtubeiframe.PlaybackActivityIframe;
+
 public class MainFragment extends BrowseFragment {
     private static final String TAG = "MainFragment";
 
@@ -301,7 +303,8 @@ public class MainFragment extends BrowseFragment {
             if (item instanceof Movie) {
                 Movie movie = (Movie) item;
                 Log.d(TAG, "Item: " + item.toString());
-                Intent intent = new Intent(getActivity(), DetailsActivity.class);
+//                Intent intent = new Intent(getActivity(), DetailsActivity.class);
+                Intent intent = new Intent(getActivity(), PlaybackActivityIframe.class);
                 intent.putExtra(DetailsActivity.MOVIE, movie);
 
                 Bundle bundle = ActivityOptionsCompat.makeSceneTransitionAnimation(
