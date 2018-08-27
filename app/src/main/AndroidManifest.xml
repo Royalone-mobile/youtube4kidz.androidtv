@@ -31,8 +31,6 @@
                 <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".DetailsActivity" />
-        <activity android:name=".PlaybackActivity" />
         <activity android:name=".BrowseErrorActivity" />
         <activity android:name=".youtubeiframe.PlaybackActivityIframe" />
     </application>

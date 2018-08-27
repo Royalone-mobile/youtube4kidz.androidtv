@@ -17,18 +17,19 @@ package digital.alf.youtube4kidzandroidtv.youtubeiframe;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 
-import digital.alf.youtube4kidzandroidtv.DetailsActivity;
 import digital.alf.youtube4kidzandroidtv.Movie;
 import fr.bmartel.youtubetv.YoutubeTvFragment;
 
 public class PlaybackActivityIframe extends FragmentActivity {
+    public static final String SHARED_ELEMENT_NAME = "hero";
+    public static final String MOVIE = "Movie";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         final Movie movie =
-                (Movie) getIntent().getSerializableExtra(DetailsActivity.MOVIE);
+                (Movie) getIntent().getSerializableExtra(PlaybackActivityIframe.MOVIE);
 
         Bundle args = new Bundle();
         args.putString("videoId", movie.getYoutubeId());

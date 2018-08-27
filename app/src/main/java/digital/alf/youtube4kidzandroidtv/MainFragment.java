@@ -14,6 +14,7 @@
 
 package digital.alf.youtube4kidzandroidtv;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
@@ -305,12 +306,12 @@ public class MainFragment extends BrowseFragment {
                 Log.d(TAG, "Item: " + item.toString());
 //                Intent intent = new Intent(getActivity(), DetailsActivity.class);
                 Intent intent = new Intent(getActivity(), PlaybackActivityIframe.class);
-                intent.putExtra(DetailsActivity.MOVIE, movie);
+                intent.putExtra(PlaybackActivityIframe.MOVIE, movie);
 
                 Bundle bundle = ActivityOptionsCompat.makeSceneTransitionAnimation(
                         getActivity(),
                         ((ImageCardView) itemViewHolder.view).getMainImageView(),
-                        DetailsActivity.SHARED_ELEMENT_NAME)
+                        PlaybackActivityIframe.SHARED_ELEMENT_NAME)
                         .toBundle();
                 getActivity().startActivity(intent, bundle);
             } else if (item instanceof String) {
@@ -373,6 +374,10 @@ public class MainFragment extends BrowseFragment {
         @Override
         public void onUnbindViewHolder(ViewHolder viewHolder) {
         }
+    }
+
+    public Context getContext(){
+        return getActivity();
     }
 
 }
